@@ -66,12 +66,19 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
     <script>
-        let currentOption = null;
+        let currentOption = "SP"; // Set default option to "SP"
         let dataRows = [];
+
+        // Set default selection in the dropdown
+        $(document).ready(function() {
+            $('#dropdownMenuButton').text("Select Option: " + currentOption);
+            displayDataRows();
+        });
 
         // Handle dropdown selection
         $('.dropdown-item').click(function() {
             currentOption = $(this).data('option');
+            $('#dropdownMenuButton').text("Select Option: " + currentOption); // Update dropdown button text
             displayDataRows();
         });
 
