@@ -12,7 +12,7 @@
         <h2 class="mb-4">Dropdown Menu with Data Display</h2>
         <div class="dropdown mb-3 d-inline-block">
             <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-                Select an Option
+                Option 1
             </button>
             <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                 <li><a class="dropdown-item" href="#" data-value="option1">Option 1</a></li>
@@ -30,7 +30,6 @@
                 </tr>
             </thead>
             <tbody id="dataTable">
-                <tr><td colspan="2" class="text-center">Select an option to display data</td></tr>
             </tbody>
         </table>
         <button id="addRow" class="btn btn-success">+</button>
@@ -45,16 +44,22 @@
                 option5: ["Data 5.1", "Data 5.2", "Data 5.3", "Data 5.4", "Data 5.5"]
             };
             
-            $(".dropdown-item").click(function(){
-                let selectedOption = $(this).data("value");
+            function updateTable(selectedOption) {
                 let selectedData = data[selectedOption];
-                
                 let tableRows = "";
                 selectedData.forEach((item, index) => {
                     tableRows += `<tr><td>${index + 1}</td><td>${item}</td></tr>`;
                 });
-                
                 $("#dataTable").html(tableRows);
+            }
+            
+            $("#dropdownMenuButton").text("Option 1");
+            updateTable("option1");
+            
+            $(".dropdown-item").click(function(){
+                let selectedOption = $(this).data("value");
+                $("#dropdownMenuButton").text($(this).text());
+                updateTable(selectedOption);
             });
             
             $("#addRow").click(function(){
