@@ -15,9 +15,10 @@
         <!-- Dropdown Button -->
         <div class="dropdown mb-3 d-inline-block">
             <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-                SP
+                All
             </button>
             <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                <li><a class="dropdown-item" href="#" data-value="All">All</a></li>
                 <li><a class="dropdown-item" href="#" data-value="SP">SP</a></li>
                 <li><a class="dropdown-item" href="#" data-value="RP">RP</a></li>
                 <li><a class="dropdown-item" href="#" data-value="CP">CP</a></li>
@@ -33,13 +34,17 @@
             </ul>
         </div>
 
+        <!-- Search box (hidden by default) -->
+        <div id="searchBoxContainer" class="mb-3" style="display: none;">
+            <input type="text" id="searchBox" class="form-control" placeholder="Search Players..." style="width: 100%; padding: 10px;">
+        </div>
+
         <!-- Data Table -->
         <table class="table table-bordered mt-3">
             <thead>
                 <tr>
                     <th>Position</th>
                     <th>Player</th>
-                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody id="dataTable"></tbody>
@@ -55,8 +60,8 @@
     <script>
         $(document).ready(function() {
             let isEditable = false;
-            let currentPosition = "SP";  // Default selection
-            
+            let currentPosition = "All";  // Default selection
+
             // Load saved table data from localStorage
             function loadTableData() {
                 let savedData = JSON.parse(localStorage.getItem("tableData")) || [];
@@ -76,24 +81,29 @@
                 localStorage.setItem("tableData", JSON.stringify(rows));
             }
 
-            // Display table data from localStorage
+            // Display table data based on the provided dataset
             function displayTableData(data) {
                 let tableRows = "";
                 data.forEach(item => {
                     tableRows += `<tr>
                                     <td contenteditable="${isEditable}">${item.position}</td>
                                     <td contenteditable="${isEditable}">${item.player}</td>
-                                    <td><button class="btn btn-danger btn-sm deleteRow">❌</button></td>
                                   </tr>`;
                 });
                 $("#dataTable").html(tableRows);
             }
 
-            // Update table based on dropdown selection
+            // Filter table based on position selection
             function filterTableByPosition(position) {
                 let savedData = JSON.parse(localStorage.getItem("tableData")) || [];
-                let filteredData = savedData.filter(item => item.position === position);
-                displayTableData(filteredData);
+                if (position === "All") {
+                    displayTableData(savedData); // Show all data
+                    $("#searchBoxContainer").show();  // Show the search box
+                } else {
+                    let filteredData = savedData.filter(item => item.position === position);
+                    displayTableData(filteredData);
+                    $("#searchBoxContainer").hide();  // Hide the search box for non-"All" selections
+                }
             }
 
             // Set default position and load table
@@ -112,7 +122,6 @@
                 let newRow = `<tr>
                                 <td contenteditable="true">${currentPosition}</td>
                                 <td contenteditable="true">New Player</td>
-                                <td><button class="btn btn-danger btn-sm deleteRow">❌</button></td>
                               </tr>`;
                 $("#dataTable").append(newRow);
                 saveTableData();
@@ -126,17 +135,19 @@
                 if (!isEditable) saveTableData();
             });
 
-            // Delete row
-            $("#dataTable").on("click", ".deleteRow", function() {
-                $(this).closest("tr").remove();
-                saveTableData();
-            });
-
             // Auto-save changes
             $("#dataTable").on("input", "td", function() {
                 saveTableData();
             });
 
+            // Search functionality
+            $("#searchBox").on("input", function() {
+                let query = $(this).val().toLowerCase();
+                $("#dataTable tr").each(function() {
+                    let player = $(this).find("td:nth-child(2)").text().toLowerCase();
+                    $(this).toggle(player.indexOf(query) > -1);
+                });
+            });
         });
     </script>
 </body>
