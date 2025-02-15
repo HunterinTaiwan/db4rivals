@@ -51,7 +51,7 @@
                 
                 let tableRows = "";
                 selectedData.forEach((item, index) => {
-                    tableRows += `<tr><td contenteditable="true">${index + 1}</td><td contenteditable="true">${item}</td></tr>`;
+                    tableRows += `<tr><td>${index + 1}</td><td>${item}</td></tr>`;
                 });
                 
                 $("#dataTable").html(tableRows);
@@ -61,6 +61,14 @@
                 let newRowIndex = $("#dataTable tr").length + 1;
                 let newRow = `<tr><td contenteditable="true">${newRowIndex}</td><td contenteditable="true">New Data ${newRowIndex}</td></tr>`;
                 $("#dataTable").append(newRow);
+                
+                // Make the new row editable and disable editing on Enter key press
+                $("#dataTable tr:last td").keypress(function(event){
+                    if(event.which === 13){ // Enter key
+                        event.preventDefault();
+                        $(this).closest("tr").find("td").attr("contenteditable", "false");
+                    }
+                });
             });
         });
     </script>
