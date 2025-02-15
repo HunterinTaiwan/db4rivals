@@ -61,43 +61,24 @@
         $(document).ready(function() {
             let isEditable = false;
             let currentPosition = "All";  // Default selection
-            let db;
 
-            // Open IndexedDB database
-            const request = indexedDB.open("playersDatabase", 1);
-            request.onupgradeneeded = function(event) {
-                db = event.target.result;
-                let objectStore = db.createObjectStore("players", { keyPath: "id", autoIncrement: true });
-                objectStore.createIndex("position", "position", { unique: false });
-            };
-            request.onsuccess = function(event) {
-                db = event.target.result;
-                console.log("IndexedDB opened successfully");
-                loadTableData();
-            };
-            request.onerror = function(event) {
-                console.error("Error opening IndexedDB", event.target.error);
-            };
-
-            // Save data to IndexedDB
-            function saveToIndexedDB(data) {
-                let transaction = db.transaction(["players"], "readwrite");
-                let objectStore = transaction.objectStore("players");
-                objectStore.clear(); // Clear previous data before saving new one (optional)
-                data.forEach(item => {
-                    objectStore.add(item);
-                });
+            // Load saved table data from localStorage
+            function loadTableData() {
+                let savedData = JSON.parse(localStorage.getItem("tableData")) || [];
+                displayTableData(savedData);
             }
 
-            // Load data from IndexedDB
-            function loadTableData() {
-                let transaction = db.transaction(["players"], "readonly");
-                let objectStore = transaction.objectStore("players");
-                let request = objectStore.getAll();  // Fetch all data
-                request.onsuccess = function(event) {
-                    let savedData = event.target.result;
-                    displayTableData(savedData);
-                };
+            // Save data to localStorage
+            function saveTableData() {
+                let rows = [];
+                $("#dataTable tr").each(function() {
+                    let position = $(this).find("td:first").text();
+                    let player = $(this).find("td:nth-child(2)").text();
+                    if (position && player) {
+                        rows.push({ position, player });
+                    }
+                });
+                localStorage.setItem("tableData", JSON.stringify(rows));
             }
 
             // Display table data based on the provided dataset
@@ -114,13 +95,15 @@
 
             // Filter table based on position selection
             function filterTableByPosition(position) {
-                let transaction = db.transaction(["players"], "readonly");
-                let objectStore = transaction.objectStore("players");
-                let request = objectStore.index("position").getAll(position); // Fetch filtered data based on position
-                request.onsuccess = function(event) {
-                    let filteredData = event.target.result;
+                let savedData = JSON.parse(localStorage.getItem("tableData")) || [];
+                if (position === "All") {
+                    displayTableData(savedData); // Show all data
+                    $("#searchBoxContainer").show();  // Show the search box
+                } else {
+                    let filteredData = savedData.filter(item => item.position === position);
                     displayTableData(filteredData);
-                };
+                    $("#searchBoxContainer").hide();  // Hide the search box for non-"All" selections
+                }
             }
 
             // Set default position and load table
@@ -136,9 +119,12 @@
 
             // Add new row
             $("#addRow").click(function() {
-                let newRow = { position: currentPosition, player: "New Player" };
-                saveToIndexedDB([newRow]);  // Add new row to IndexedDB
-                loadTableData();  // Reload table after adding
+                let newRow = `<tr>
+                                <td contenteditable="true">${currentPosition}</td>
+                                <td contenteditable="true">New Player</td>
+                              </tr>`;
+                $("#dataTable").append(newRow);
+                saveTableData();
             });
 
             // Enable/Disable edit mode
@@ -146,20 +132,12 @@
                 isEditable = !isEditable;
                 $("#dataTable td").attr("contenteditable", isEditable);
                 $(this).text(isEditable ? "✔" : "Edit");
-                if (!isEditable) loadTableData();  // Reload table after editing
+                if (!isEditable) saveTableData();
             });
 
-            // Auto-save changes (update IndexedDB when data is modified in the table)
+            // Auto-save changes
             $("#dataTable").on("input", "td", function() {
-                let rows = [];
-                $("#dataTable tr").each(function() {
-                    let position = $(this).find("td:first").text();
-                    let player = $(this).find("td:nth-child(2)").text();
-                    if (position && player) {
-                        rows.push({ position, player });
-                    }
-                });
-                saveToIndexedDB(rows);  // Save updated data to IndexedDB
+                saveTableData();
             });
 
             // Search functionality
