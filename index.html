@@ -33,6 +33,7 @@
                 <tr><td colspan="2" class="text-center">Select an option to display data</td></tr>
             </tbody>
         </table>
+        <button id="addRow" class="btn btn-success">+</button>
     </div>
     <script>
         $(document).ready(function(){
@@ -54,6 +55,12 @@
                 });
                 
                 $("#dataTable").html(tableRows);
+            });
+            
+            $("#addRow").click(function(){
+                let newRowIndex = $("#dataTable tr").length + 1;
+                let newRow = `<tr><td>${newRowIndex}</td><td>New Data ${newRowIndex}</td></tr>`;
+                $("#dataTable").append(newRow);
             });
         });
     </script>
