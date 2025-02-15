@@ -6,95 +6,69 @@
     <title>Dropdown Data Display</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <style>
-        /* Custom style for the edit button */
-        #editToggle {
-            background-color: #ffc107; /* Bright yellow color */
-            color: white; /* Text color */
-        }
-
-        /* Optional: change button color when hovered */
-        #editToggle:hover {
-            background-color: #ffca28; /* Slightly darker yellow for hover */
-        }
-    </style>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </head>
 <body>
     <div class="container mt-5 text-center">
         <h2 class="mb-4">Dropdown Menu with Data Display</h2>
+        
+        <!-- Dropdown Button -->
         <div class="dropdown mb-3 d-inline-block">
             <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
                 SP
             </button>
             <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                <li><a class="dropdown-item" href="#" data-value="option1">SP</a></li>
-                <li><a class="dropdown-item" href="#" data-value="option2">RP</a></li>
-                <li><a class="dropdown-item" href="#" data-value="option3">CP</a></li>
-                <li><a class="dropdown-item" href="#" data-value="option4">C</a></li>
-                <li><a class="dropdown-item" href="#" data-value="option5">1B</a></li>
-                <li><a class="dropdown-item" href="#" data-value="option6">2B</a></li>
-                <li><a class="dropdown-item" href="#" data-value="option7">3B</a></li>
-                <li><a class="dropdown-item" href="#" data-value="option8">SS</a></li>
-                <li><a class="dropdown-item" href="#" data-value="option9">LF</a></li>
-                <li><a class="dropdown-item" href="#" data-value="option10">CF</a></li>
-                <li><a class="dropdown-item" href="#" data-value="option11">RF</a></li>
-                <li><a class="dropdown-item" href="#" data-value="option12">DH</a></li>
-                <li><a class="dropdown-item" href="#" data-value="all">All</a></li> <!-- Added 'All' option -->
+                <li><a class="dropdown-item" href="#" data-value="SP">SP</a></li>
+                <li><a class="dropdown-item" href="#" data-value="RP">RP</a></li>
+                <li><a class="dropdown-item" href="#" data-value="CP">CP</a></li>
+                <li><a class="dropdown-item" href="#" data-value="C">C</a></li>
+                <li><a class="dropdown-item" href="#" data-value="1B">1B</a></li>
+                <li><a class="dropdown-item" href="#" data-value="2B">2B</a></li>
+                <li><a class="dropdown-item" href="#" data-value="3B">3B</a></li>
+                <li><a class="dropdown-item" href="#" data-value="SS">SS</a></li>
+                <li><a class="dropdown-item" href="#" data-value="LF">LF</a></li>
+                <li><a class="dropdown-item" href="#" data-value="CF">CF</a></li>
+                <li><a class="dropdown-item" href="#" data-value="RF">RF</a></li>
+                <li><a class="dropdown-item" href="#" data-value="DH">DH</a></li>
             </ul>
         </div>
+
+        <!-- Data Table -->
         <table class="table table-bordered mt-3">
             <thead>
                 <tr>
                     <th>Position</th>
                     <th>Player</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
-            <tbody id="dataTable">
-            </tbody>
+            <tbody id="dataTable"></tbody>
         </table>
+
+        <!-- Buttons -->
         <div>
             <button id="addRow" class="btn btn-success">+</button>
-            <button id="editToggle" class="btn btn-secondary">Edit</button> <!-- New toggle button -->
+            <button id="editToggle" class="btn btn-secondary">✔</button>
         </div>
     </div>
 
     <script>
         $(document).ready(function() {
-            const data = {
-                option1: ["Data 1.1"],  // SP
-                option2: ["Data 2.1"],  // RP
-                option3: ["Data 3.1"],  // CP
-                option4: ["Data 4.1"],  // C
-                option5: ["Data 5.1"],  // 1B
-                option6: ["Data 6.1"],  // 2B
-                option7: ["Data 7.1"],  // 3B
-                option8: ["Data 8.1"],  // SS
-                option9: ["Data 9.1"],  // LF
-                option10: ["Data 10.1"],  // CF
-                option11: ["Data 11.1"],  // RF
-                option12: ["Data 12.1"]  // DH
-            };
-
-            let isEditable = true; // Track whether the table is editable
-
-            // Function to load data from localStorage and display it
+            let isEditable = false;
+            let currentPosition = "SP";  // Default selection
+            
+            // Load saved table data from localStorage
             function loadTableData() {
-                const savedData = JSON.parse(localStorage.getItem("tableData")) || [];
-                let tableRows = "";
-                
-                savedData.forEach(item => {
-                    tableRows += `<tr><td>${item.position}</td><td>${item.player}</td></tr>`;
-                });
-
-                $("#dataTable").html(tableRows);
+                let savedData = JSON.parse(localStorage.getItem("tableData")) || [];
+                displayTableData(savedData);
             }
 
-            // Function to save data to localStorage
+            // Save data to localStorage
             function saveTableData() {
-                const rows = [];
+                let rows = [];
                 $("#dataTable tr").each(function() {
-                    const position = $(this).find("td:first").text();
-                    const player = $(this).find("td:last").text();
+                    let position = $(this).find("td:first").text();
+                    let player = $(this).find("td:nth-child(2)").text();
                     if (position && player) {
                         rows.push({ position, player });
                     }
@@ -102,95 +76,68 @@
                 localStorage.setItem("tableData", JSON.stringify(rows));
             }
 
-            // Function to update the table based on the selected option
-            function updateTable(selectedOption, positionName) {
+            // Display table data from localStorage
+            function displayTableData(data) {
                 let tableRows = "";
-                let selectedData = data[selectedOption];
-                selectedData.forEach((item) => {
-                    tableRows += `<tr><td>${positionName}</td><td>${item}</td></tr>`;
+                data.forEach(item => {
+                    tableRows += `<tr>
+                                    <td contenteditable="${isEditable}">${item.position}</td>
+                                    <td contenteditable="${isEditable}">${item.player}</td>
+                                    <td><button class="btn btn-danger btn-sm deleteRow">❌</button></td>
+                                  </tr>`;
                 });
                 $("#dataTable").html(tableRows);
-                saveTableData();  // Save data after table update
             }
 
-            // Function to update the table for 'All' option
-            function updateTableForAll() {
-                let tableRows = "";
-                const positions = [
-                    {name: 'SP', data: data.option1},
-                    {name: 'RP', data: data.option2},
-                    {name: 'CP', data: data.option3},
-                    {name: 'C', data: data.option4},
-                    {name: '1B', data: data.option5},
-                    {name: '2B', data: data.option6},
-                    {name: '3B', data: data.option7},
-                    {name: 'SS', data: data.option8},
-                    {name: 'LF', data: data.option9},
-                    {name: 'CF', data: data.option10},
-                    {name: 'RF', data: data.option11},
-                    {name: 'DH', data: data.option12}
-                ];
-
-                positions.forEach(position => {
-                    position.data.forEach(item => {
-                        tableRows += `<tr><td>${position.name}</td><td>${item}</td></tr>`;
-                    });
-                });
-
-                $("#dataTable").html(tableRows);
-                saveTableData();  // Save data after table update
+            // Update table based on dropdown selection
+            function filterTableByPosition(position) {
+                let savedData = JSON.parse(localStorage.getItem("tableData")) || [];
+                let filteredData = savedData.filter(item => item.position === position);
+                displayTableData(filteredData);
             }
 
-            // Set the default text and table content for "SP"
-            $("#dropdownMenuButton").text("SP");
-            updateTable("option1", "SP");
-
-            // Dropdown item click event
-            $(".dropdown-item").click(function() {
-                let selectedOption = $(this).data("value");
-                let positionName = $(this).text();  // Get the position name (e.g., "SP", "RP")
-
-                if (selectedOption === "all") {
-                    $("#dropdownMenuButton").text("All");
-                    updateTableForAll();  // Show data for all positions
-                } else {
-                    $("#dropdownMenuButton").text(positionName);
-                    updateTable(selectedOption, positionName);  // Show data for the selected position
-                }
-            });
-
-            // Add row to the table
-            $("#addRow").click(function() {
-                let positionName = $("#dropdownMenuButton").text();  // Get the current selected position
-                let newRowIndex = $("#dataTable tr").length + 1;
-                let newRow = `<tr><td contenteditable="true">${positionName}</td><td contenteditable="true">New Data ${newRowIndex}</td></tr>`;
-                $("#dataTable").append(newRow);
-                saveTableData();  // Save data after new row is added
-            });
-
-            // Toggle between "+" and "✔", and handle enabling/disabling table edits
-            $("#editToggle").click(function() {
-                if (isEditable) {
-                    // Disable editing
-                    $("#dataTable tr").each(function() {
-                        $(this).find("td").attr("contenteditable", "false");
-                    });
-                    $(this).text("Edit"); // Change button text to check mark
-                } else {
-                    // Enable editing
-                    $("#dataTable tr").each(function() {
-                        $(this).find("td").attr("contenteditable", "true");
-                    });
-                    $(this).text("✔"); // Change button text to plus
-                }
-                isEditable = !isEditable; // Toggle the state
-            });
-
-            // Load saved data when the page is loaded
+            // Set default position and load table
+            $("#dropdownMenuButton").text(currentPosition);
             loadTableData();
+
+            // Handle dropdown selection
+            $(".dropdown-item").click(function() {
+                currentPosition = $(this).data("value");
+                $("#dropdownMenuButton").text(currentPosition);
+                filterTableByPosition(currentPosition);
+            });
+
+            // Add new row
+            $("#addRow").click(function() {
+                let newRow = `<tr>
+                                <td contenteditable="true">${currentPosition}</td>
+                                <td contenteditable="true">New Player</td>
+                                <td><button class="btn btn-danger btn-sm deleteRow">❌</button></td>
+                              </tr>`;
+                $("#dataTable").append(newRow);
+                saveTableData();
+            });
+
+            // Enable/Disable edit mode
+            $("#editToggle").click(function() {
+                isEditable = !isEditable;
+                $("#dataTable td").attr("contenteditable", isEditable);
+                $(this).text(isEditable ? "✔" : "Edit");
+                if (!isEditable) saveTableData();
+            });
+
+            // Delete row
+            $("#dataTable").on("click", ".deleteRow", function() {
+                $(this).closest("tr").remove();
+                saveTableData();
+            });
+
+            // Auto-save changes
+            $("#dataTable").on("input", "td", function() {
+                saveTableData();
+            });
+
         });
     </script>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
