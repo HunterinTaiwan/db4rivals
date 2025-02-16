@@ -3,72 +3,80 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dropdown Data Display</title>
+    <title>Baseball Roster Manager</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </head>
 <body>
-    <div class="container mt-5 text-center">
-        <h2 class="mb-4">Dropdown Menu with Data Display</h2>
+    <div class="container mt-5">
+        <h2 class="mb-4 text-center">Baseball Roster Manager</h2>
         
-        <!-- Dropdown Button -->
-        <div class="dropdown mb-3 d-inline-block">
-            <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-                All
-            </button>
-            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                <li><a class="dropdown-item" href="#" data-value="All">All</a></li>
-                <!-- <li><a class="dropdown-item" href="#" data-value="SP">SP</a></li> -->
-                <!-- <li><a class="dropdown-item" href="#" data-value="RP">RP</a></li> -->
-                <!-- <li><a class="dropdown-item" href="#" data-value="CP">CP</a></li> -->
-                <!-- <li><a class="dropdown-item" href="#" data-value="C">C</a></li> -->
-                <!-- <li><a class="dropdown-item" href="#" data-value="1B">1B</a></li> -->
-                <!-- <li><a class="dropdown-item" href="#" data-value="2B">2B</a></li> -->
-                <!-- <li><a class="dropdown-item" href="#" data-value="3B">3B</a></li> -->
-                <!-- <li><a class="dropdown-item" href="#" data-value="SS">SS</a></li> -->
-                <!-- <li><a class="dropdown-item" href="#" data-value="LF">LF</a></li> -->
-                <!-- <li><a class="dropdown-item" href="#" data-value="CF">CF</a></li> -->
-                <!-- <li><a class="dropdown-item" href="#" data-value="RF">RF</a></li> -->
-                <!-- <li><a class="dropdown-item" href="#" data-value="DH">DH</a></li> -->
-            </ul>
-        </div>
+        <div class="row">
+            <div class="col-md-6 offset-md-3">
+                <!-- Position Filter -->
+                <div class="dropdown mb-3">
+                    <button class="btn btn-primary dropdown-toggle w-100" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                        All Positions
+                    </button>
+                    <ul class="dropdown-menu w-100" aria-labelledby="dropdownMenuButton">
+                        <li><a class="dropdown-item" href="#" data-value="All">All Positions</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="#" data-value="SP">Starting Pitcher (SP)</a></li>
+                        <li><a class="dropdown-item" href="#" data-value="RP">Relief Pitcher (RP)</a></li>
+                        <li><a class="dropdown-item" href="#" data-value="CP">Closing Pitcher (CP)</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="#" data-value="C">Catcher (C)</a></li>
+                        <li><a class="dropdown-item" href="#" data-value="1B">First Base (1B)</a></li>
+                        <li><a class="dropdown-item" href="#" data-value="2B">Second Base (2B)</a></li>
+                        <li><a class="dropdown-item" href="#" data-value="3B">Third Base (3B)</a></li>
+                        <li><a class="dropdown-item" href="#" data-value="SS">Shortstop (SS)</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="#" data-value="LF">Left Field (LF)</a></li>
+                        <li><a class="dropdown-item" href="#" data-value="CF">Center Field (CF)</a></li>
+                        <li><a class="dropdown-item" href="#" data-value="RF">Right Field (RF)</a></li>
+                        <li><a class="dropdown-item" href="#" data-value="DH">Designated Hitter (DH)</a></li>
+                    </ul>
+                </div>
 
-        <!-- Search box (hidden by default) -->
-        <div id="searchBoxContainer" class="mb-3" style="display: none;">
-            <input type="text" id="searchBox" class="form-control" placeholder="Search Players..." style="width: 100%; padding: 10px;">
-        </div>
+                <!-- Search Box -->
+                <div id="searchBoxContainer" class="mb-3">
+                    <input type="text" id="searchBox" class="form-control" placeholder="Search players...">
+                </div>
 
-        <!-- Data Table -->
-        <table class="table table-bordered mt-3">
-            <thead>
-                <tr>
-                    <th>Position</th>
-                    <th>Player</th>
-                </tr>
-            </thead>
-            <tbody id="dataTable"></tbody>
-        </table>
+                <!-- Data Table -->
+                <div class="table-responsive">
+                    <table class="table table-hover table-bordered">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 30%">Position</th>
+                                <th style="width: 60%">Player</th>
+                                <th style="width: 10%">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dataTable"></tbody>
+                    </table>
+                </div>
 
-        <!-- Buttons -->
-        <div>
-            <button id="addRow" class="btn btn-success">+</button>
-            <button id="editToggle" class="btn btn-secondary">✔</button>
+                <!-- Control Buttons -->
+                <div class="text-center mt-3">
+                    <button id="addRow" class="btn btn-success me-2">Add Player</button>
+                    <button id="editToggle" class="btn btn-secondary">Edit Mode</button>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
         $(document).ready(function() {
             let isEditable = false;
-            let currentPosition = "All";  // Default selection
+            let currentPosition = "All";
 
-            // Load saved table data from localStorage
             function loadTableData() {
                 let savedData = JSON.parse(localStorage.getItem("tableData")) || [];
                 displayTableData(savedData);
             }
 
-            // Save data to localStorage
             function saveTableData() {
                 let rows = [];
                 $("#dataTable tr").each(function() {
@@ -81,66 +89,71 @@
                 localStorage.setItem("tableData", JSON.stringify(rows));
             }
 
-            // Display table data based on the provided dataset
             function displayTableData(data) {
                 let tableRows = "";
-                data.forEach(item => {
+                data.forEach((item, index) => {
                     tableRows += `<tr>
-                                    <td contenteditable="${isEditable}">${item.position}</td>
-                                    <td contenteditable="${isEditable}">${item.player}</td>
-                                  </tr>`;
+                        <td contenteditable="${isEditable}">${item.position}</td>
+                        <td contenteditable="${isEditable}">${item.player}</td>
+                        <td class="text-center">
+                            <button class="btn btn-danger btn-sm delete-row" data-index="${index}">×</button>
+                        </td>
+                    </tr>`;
                 });
                 $("#dataTable").html(tableRows);
             }
 
-            // Filter table based on position selection
             function filterTableByPosition(position) {
                 let savedData = JSON.parse(localStorage.getItem("tableData")) || [];
                 if (position === "All") {
-                    displayTableData(savedData); // Show all data
-                    $("#searchBoxContainer").show();  // Show the search box
+                    displayTableData(savedData);
+                    $("#searchBoxContainer").show();
                 } else {
                     let filteredData = savedData.filter(item => item.position === position);
                     displayTableData(filteredData);
-                    $("#searchBoxContainer").hide();  // Hide the search box for non-"All" selections
+                    $("#searchBoxContainer").hide();
                 }
             }
 
-            // Set default position and load table
-            $("#dropdownMenuButton").text(currentPosition);
+            $("#dropdownMenuButton").text("All Positions");
             loadTableData();
 
-            // Handle dropdown selection
             $(".dropdown-item").click(function() {
                 currentPosition = $(this).data("value");
-                $("#dropdownMenuButton").text(currentPosition);
+                $("#dropdownMenuButton").text($(this).text());
                 filterTableByPosition(currentPosition);
             });
 
-            // Add new row
             $("#addRow").click(function() {
+                let position = currentPosition === "All" ? "SP" : currentPosition;
                 let newRow = `<tr>
-                                <td contenteditable="true">${currentPosition}</td>
-                                <td contenteditable="true">New Player</td>
-                              </tr>`;
+                    <td contenteditable="${isEditable}">${position}</td>
+                    <td contenteditable="${isEditable}">New Player</td>
+                    <td class="text-center">
+                        <button class="btn btn-danger btn-sm delete-row">×</button>
+                    </td>
+                </tr>`;
                 $("#dataTable").append(newRow);
                 saveTableData();
             });
 
-            // Enable/Disable edit mode
             $("#editToggle").click(function() {
                 isEditable = !isEditable;
-                $("#dataTable td").attr("contenteditable", isEditable);
-                $(this).text(isEditable ? "✔" : "Edit");
+                $("#dataTable td:not(:last-child)").attr("contenteditable", isEditable);
+                $(this).text(isEditable ? "Save Changes" : "Edit Mode");
+                $(this).toggleClass("btn-primary btn-secondary");
                 if (!isEditable) saveTableData();
             });
 
-            // Auto-save changes
             $("#dataTable").on("input", "td", function() {
                 saveTableData();
             });
 
-            // Search functionality
+            $("#dataTable").on("click", ".delete-row", function() {
+                $(this).closest("tr").remove();
+                saveTableData();
+            });
+
             $("#searchBox").on("input", function() {
                 let query = $(this).val().toLowerCase();
                 $("#dataTable tr").each(function() {
