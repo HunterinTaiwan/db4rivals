@@ -72,8 +72,29 @@
             let isEditable = false;
             let currentPosition = "All";
 
+            // Initial roster data
+            const initialRosterData = [
+                { position: "SP", player: "Gerrit Cole" },
+                { position: "SP", player: "Yoshinobu Yamamoto" },
+                { position: "CP", player: "Josh Hader" },
+                { position: "C", player: "Adley Rutschman" },
+                { position: "1B", player: "Freddie Freeman" },
+                { position: "2B", player: "Marcus Semien" },
+                { position: "3B", player: "Austin Riley" },
+                { position: "SS", player: "Trea Turner" },
+                { position: "LF", player: "Juan Soto" },
+                { position: "CF", player: "Mike Trout" },
+                { position: "RF", player: "Ronald Acuña Jr." },
+                { position: "DH", player: "Shohei Ohtani" }
+            ];
+
             function loadTableData() {
-                let savedData = JSON.parse(localStorage.getItem("tableData")) || [];
+                let savedData = JSON.parse(localStorage.getItem("tableData"));
+                if (!savedData) {
+                    // Initialize with default data if no saved data exists
+                    localStorage.setItem("tableData", JSON.stringify(initialRosterData));
+                    savedData = initialRosterData;
+                }
                 displayTableData(savedData);
             }
 
@@ -104,7 +125,7 @@
             }
 
             function filterTableByPosition(position) {
-                let savedData = JSON.parse(localStorage.getItem("tableData")) || [];
+                let savedData = JSON.parse(localStorage.getItem("tableData")) || initialRosterData;
                 if (position === "All") {
                     displayTableData(savedData);
                     $("#searchBoxContainer").show();
